@@ -3,5 +3,6 @@ this script function is to scraping all active product of love bonito and review
 #how to install
 - 1. pip install requirements.txt
 - 2. git clone this repo
+     
 #how to used
 - 1. just run this this scipt
