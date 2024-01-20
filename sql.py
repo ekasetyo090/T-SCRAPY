@@ -183,7 +183,7 @@ def get_tokopedia_basic_info(df:pd.DataFrame)->dict:
     while retries < 4:
             try:
                 request = req.post(url,headers=header,json=payload).json()
-                if (request is not None) and (request.get('data') is not None) and (request['data'].get('pdpGetLayout') is not None):
+                if (request is not None) and (request.get('data') is not None) and (request['data'].get('pdpGetLayout') is not None) and (request['data']['pdpGetLayout'].get('basicInfo') is not None):
                     break
                 else:
                     continue
@@ -302,11 +302,15 @@ def get_tokopedia_basic_info(df:pd.DataFrame)->dict:
 
                         else:
                             data_dict['productVariants'] = None
-                    else:
+                    elif (item < (len(components)-1)) and components[item].get('name') != 'new_variant_options':
                         pass
+                    elif (item == (len(components)-1)) and components[item].get('name') != 'new_variant_options':
+                        data_dict['productVariants'] = None
+            elif components is None:
+                data_dict['productVariants'] = None
             return data_dict
         else:
-            pass
+            return None
     else:
         return None
 
@@ -510,11 +514,11 @@ def main():
     
     df = get_tokopedia_shop_product(shop_id)
     
-    for i in range(0,len(df),1):
-        query = f"SELECT * FROM {active_product_table} WHERE shopId = '{shop_id}' AND productId = {df['productId'].iloc[i]}"
+    while len(df)>=1:
+        query = f"SELECT * FROM {active_product_table} WHERE shopId = '{shop_id}' AND productId = {df['productId'].iloc[-1]}"
         df_existing = pd.read_sql_query(query, sql_engine)
         if len(df_existing)<1:
-            print(f"add productlist data of {df['productName'].iloc[i]}")
+            print(f"add productlist data of {df['productName'].iloc[-1]}")
             cursor.execute("BEGIN TRANSACTION")
             queries = """INSERT INTO {} (shopId, 
                                             productListingStatus, 
@@ -541,35 +545,36 @@ def main():
                                             productKey,
                                             extParam) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""".format(active_product_table)
                           
-            params = (df['shopId'].iloc[i],
-                          df['productListingStatus'].iloc[i],
-                          df['productName'].iloc[i],
-                          df['productUrl'].iloc[i],
-                          df['productId'].iloc[i],
-                          df['priceText'].iloc[i],
-                          df['discounted_percentage'].iloc[i],
-                          df['original_price'].iloc[i],
-                          df['start_date'].iloc[i],
-                          df['end_date'].iloc[i],
-                          df['imageOriginal'].iloc[i],
-                          df['imageThumbnail'].iloc[i],
-                          df['imageResize300'].iloc[i],
-                          df['isSold'].iloc[i],
-                          df['isPreorder'].iloc[i],
-                          df['isWholesale'].iloc[i],
-                          df['storeBadge'].iloc[i],
-                          df['reviewCount'].iloc[i],
-                          df['rating'].iloc[i],
-                          df['averageRating'].iloc[i],
-                          df['category'].iloc[i],
-                          df['shopDomain'].iloc[i],
-                          df['productKey'].iloc[i],
-                          df['extParam'].iloc[i])
+            params = (df['shopId'].iloc[-1],
+                          df['productListingStatus'].iloc[-1],
+                          df['productName'].iloc[-1],
+                          df['productUrl'].iloc[-1],
+                          df['productId'].iloc[-1],
+                          df['priceText'].iloc[-1],
+                          df['discounted_percentage'].iloc[-1],
+                          df['original_price'].iloc[-1],
+                          df['start_date'].iloc[-1],
+                          df['end_date'].iloc[-1],
+                          df['imageOriginal'].iloc[-1],
+                          df['imageThumbnail'].iloc[-1],
+                          df['imageResize300'].iloc[-1],
+                          df['isSold'].iloc[-1],
+                          df['isPreorder'].iloc[-1],
+                          df['isWholesale'].iloc[-1],
+                          df['storeBadge'].iloc[-1],
+                          df['reviewCount'].iloc[-1],
+                          df['rating'].iloc[-1],
+                          df['averageRating'].iloc[-1],
+                          df['category'].iloc[-1],
+                          df['shopDomain'].iloc[-1],
+                          df['productKey'].iloc[-1],
+                          df['extParam'].iloc[-1])
             cursor.execute(queries, params)
             conn.commit()
+            del query, params
                                                                                    
         else:
-            print(f"update productlist data of {df['productName'].iloc[i]}")
+            print(f"update productlist data of {df['productName'].iloc[-1]}")
             cursor.execute("BEGIN TRANSACTION")
             queries = f"""UPDATE {active_product_table} SET shopId = ?, 
                                             productListingStatus = ?, 
@@ -595,96 +600,103 @@ def main():
                                             shopDomain = ?,
                                             productKey = ?,
                                             extParam  = ? WHERE shopId = ? AND productId = ?"""
-            params = (df['shopId'].iloc[i],
-                          df['productListingStatus'].iloc[i],
-                          df['productName'].iloc[i],
-                          df['productUrl'].iloc[i],
-                          df['productId'].iloc[i],
-                          df['priceText'].iloc[i],
-                          df['discounted_percentage'].iloc[i],
-                          df['original_price'].iloc[i],
-                          df['start_date'].iloc[i],
-                          df['end_date'].iloc[i],
-                          df['imageOriginal'].iloc[i],
-                          df['imageThumbnail'].iloc[i],
-                          df['imageResize300'].iloc[i],
-                          df['isSold'].iloc[i],
-                          df['isPreorder'].iloc[i],
-                          df['isWholesale'].iloc[i],
-                          df['storeBadge'].iloc[i],
-                          df['reviewCount'].iloc[i],
-                          df['rating'].iloc[i],
-                          df['averageRating'].iloc[i],
-                          df['category'].iloc[i],
-                          df['shopDomain'].iloc[i],
-                          df['productKey'].iloc[i],
-                          df['extParam'].iloc[i],
-                          df['shopId'].iloc[i],
-                          df['productId'].iloc[i])
+            params = (df['shopId'].iloc[-1],
+                          df['productListingStatus'].iloc[-1],
+                          df['productName'].iloc[-1],
+                          df['productUrl'].iloc[-1],
+                          df['productId'].iloc[-1],
+                          df['priceText'].iloc[-1],
+                          df['discounted_percentage'].iloc[-1],
+                          df['original_price'].iloc[-1],
+                          df['start_date'].iloc[-1],
+                          df['end_date'].iloc[-1],
+                          df['imageOriginal'].iloc[-1],
+                          df['imageThumbnail'].iloc[-1],
+                          df['imageResize300'].iloc[-1],
+                          df['isSold'].iloc[-1],
+                          df['isPreorder'].iloc[-1],
+                          df['isWholesale'].iloc[-1],
+                          df['storeBadge'].iloc[-1],
+                          df['reviewCount'].iloc[-1],
+                          df['rating'].iloc[-1],
+                          df['averageRating'].iloc[-1],
+                          df['category'].iloc[-1],
+                          df['shopDomain'].iloc[-1],
+                          df['productKey'].iloc[-1],
+                          df['extParam'].iloc[-1],
+                          df['shopId'].iloc[-1],
+                          df['productId'].iloc[-1])
             cursor.execute(queries, params)
             conn.commit()
+            del query, params
+            
     
-        query = f"SELECT * FROM {product_basic_info_table} WHERE shopId = '{shop_id}' AND productId = {df['productId'].iloc[i]}"
+        query = f"SELECT * FROM {product_basic_info_table} WHERE shopId = '{shop_id}' AND productId = {df['productId'].iloc[-1]}"
         df_existing = pd.read_sql_query(query, sql_engine)
         df_existing['dateRecorded'] = pd.to_datetime(df_existing['dateRecorded'])
         if len(df_existing) < 1:
-            print(f"add basic info data of {df['productName'].iloc[i]}")
-            dict_basic_info_data = get_tokopedia_basic_info(df.iloc[i])
-            dict_basic_info_data = pd.DataFrame([dict_basic_info_data])
-            dict_basic_info_data['dateRecorded'] = pd.to_datetime(dict_basic_info_data['dateRecorded'])
-            
-            
-            cursor.execute("BEGIN TRANSACTION")
-            queries = f"""INSERT INTO {product_basic_info_table} (alias, createdAt, dateRecorded, isQA, productId, 
-                                            shopId, shopName, minOrder, maxOrder, weight, weightUnit,
-                                            productCondition, status, productUrl, needPrescription, catalogId,
-                                            isLeasing, isBlacklisted, isTokoNow, etalaseId, etalaseName,
-                                            etalaseUrl, categoryId, categoryName, categoryTitle, categoryUrl,
-                                            isAdult, isKyc, minAge, relatedCategory, transactionSuccess,
-                                            transactionReject, countSold, paymentVerified, countView, 
-                                            countReview, countTalk, rating, productVariants)
-                                            VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
-            params = (dict_basic_info_data['alias'].iloc[0],
-                            dict_basic_info_data['createdAt'].iloc[0],
-                            str(dict_basic_info_data['dateRecorded'].iloc[0]),
-                            dict_basic_info_data['isQA'].iloc[0],
-                            dict_basic_info_data['productId'].iloc[0],
-                            dict_basic_info_data['shopId'].iloc[0],
-                            dict_basic_info_data['shopName'].iloc[0],
-                            dict_basic_info_data['minOrder'].iloc[0],
-                            dict_basic_info_data['maxOrder'].iloc[0],
-                            dict_basic_info_data['weight'].iloc[0],
-                            dict_basic_info_data['weightUnit'].iloc[0],
-                            dict_basic_info_data['condition'].iloc[0],
-                            dict_basic_info_data['status'].iloc[0],
-                            dict_basic_info_data['productUrl'].iloc[0],
-                            dict_basic_info_data['needPrescription'].iloc[0],
-                            dict_basic_info_data['catalogId'].iloc[0],
-                            dict_basic_info_data['isLeasing'].iloc[0],
-                            dict_basic_info_data['isBlacklisted'].iloc[0],
-                            dict_basic_info_data['isTokoNow'].iloc[0],
-                            dict_basic_info_data['etalaseId'].iloc[0],
-                            dict_basic_info_data['etalaseName'].iloc[0],
-                            dict_basic_info_data['etalaseUrl'].iloc[0],
-                            dict_basic_info_data['categoryId'].iloc[0],
-                            dict_basic_info_data['categoryName'].iloc[0],
-                            dict_basic_info_data['categoryTitle'].iloc[0],
-                            dict_basic_info_data['categoryUrl'].iloc[0],
-                            dict_basic_info_data['isAdult'].iloc[0],
-                            dict_basic_info_data['isKyc'].iloc[0],
-                            dict_basic_info_data['minAge'].iloc[0],
-                            dict_basic_info_data['relatedCategory'].iloc[0],
-                            dict_basic_info_data['transactionSuccess'].iloc[0],
-                            dict_basic_info_data['transactionReject'].iloc[0],
-                            dict_basic_info_data['countSold'].iloc[0],
-                            dict_basic_info_data['paymentVerified'].iloc[0],
-                            dict_basic_info_data['countView'].iloc[0],
-                            dict_basic_info_data['countReview'].iloc[0],
-                            dict_basic_info_data['countTalk'].iloc[0],
-                            dict_basic_info_data['rating'].iloc[0],
-                            dict_basic_info_data['productVariants'].iloc[0])
-            cursor.execute(queries, params)
-            conn.commit()
+            print(f"add basic info data of {df['productName'].iloc[-1]}")
+            dict_basic_info_data = get_tokopedia_basic_info(df.iloc[-1])
+            if dict_basic_info_data is not None:
+                dict_basic_info_data = pd.DataFrame([dict_basic_info_data])
+                dict_basic_info_data['dateRecorded'] = pd.to_datetime(dict_basic_info_data.get('dateRecorded'))
+                
+                
+                cursor.execute("BEGIN TRANSACTION")
+                queries = f"""INSERT INTO {product_basic_info_table} (alias, createdAt, dateRecorded, isQA, productId, 
+                                                shopId, shopName, minOrder, maxOrder, weight, weightUnit,
+                                                productCondition, status, productUrl, needPrescription, catalogId,
+                                                isLeasing, isBlacklisted, isTokoNow, etalaseId, etalaseName,
+                                                etalaseUrl, categoryId, categoryName, categoryTitle, categoryUrl,
+                                                isAdult, isKyc, minAge, relatedCategory, transactionSuccess,
+                                                transactionReject, countSold, paymentVerified, countView, 
+                                                countReview, countTalk, rating, productVariants)
+                                                VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
+                params = (dict_basic_info_data['alias'].iloc[0],
+                                dict_basic_info_data['createdAt'].iloc[0],
+                                str(dict_basic_info_data['dateRecorded'].iloc[0]),
+                                dict_basic_info_data['isQA'].iloc[0],
+                                dict_basic_info_data['productId'].iloc[0],
+                                dict_basic_info_data['shopId'].iloc[0],
+                                dict_basic_info_data['shopName'].iloc[0],
+                                dict_basic_info_data['minOrder'].iloc[0],
+                                dict_basic_info_data['maxOrder'].iloc[0],
+                                dict_basic_info_data['weight'].iloc[0],
+                                dict_basic_info_data['weightUnit'].iloc[0],
+                                dict_basic_info_data['condition'].iloc[0],
+                                dict_basic_info_data['status'].iloc[0],
+                                dict_basic_info_data['productUrl'].iloc[0],
+                                dict_basic_info_data['needPrescription'].iloc[0],
+                                dict_basic_info_data['catalogId'].iloc[0],
+                                dict_basic_info_data['isLeasing'].iloc[0],
+                                dict_basic_info_data['isBlacklisted'].iloc[0],
+                                dict_basic_info_data['isTokoNow'].iloc[0],
+                                dict_basic_info_data['etalaseId'].iloc[0],
+                                dict_basic_info_data['etalaseName'].iloc[0],
+                                dict_basic_info_data['etalaseUrl'].iloc[0],
+                                dict_basic_info_data['categoryId'].iloc[0],
+                                dict_basic_info_data['categoryName'].iloc[0],
+                                dict_basic_info_data['categoryTitle'].iloc[0],
+                                dict_basic_info_data['categoryUrl'].iloc[0],
+                                dict_basic_info_data['isAdult'].iloc[0],
+                                dict_basic_info_data['isKyc'].iloc[0],
+                                dict_basic_info_data['minAge'].iloc[0],
+                                dict_basic_info_data['relatedCategory'].iloc[0],
+                                dict_basic_info_data['transactionSuccess'].iloc[0],
+                                dict_basic_info_data['transactionReject'].iloc[0],
+                                dict_basic_info_data['countSold'].iloc[0],
+                                dict_basic_info_data['paymentVerified'].iloc[0],
+                                dict_basic_info_data['countView'].iloc[0],
+                                dict_basic_info_data['countReview'].iloc[0],
+                                dict_basic_info_data['countTalk'].iloc[0],
+                                dict_basic_info_data['rating'].iloc[0],
+                                dict_basic_info_data['productVariants'].iloc[0])
+                cursor.execute(queries, params)
+                conn.commit()
+                del query, params
+                del dict_basic_info_data
+            else:
+                continue
                                                                          
         
         elif df_existing['dateRecorded'].iloc[0] < date_now and len(df_existing) > 0:
@@ -777,7 +789,12 @@ def main():
                             dict_basic_info_data['productId'].iloc[0])
             cursor.execute(queries, params)
             conn.commit()
-    
+            del dict_basic_info_data
+            del query, params 
+        if df_existing is not None:
+            del df_existing
+        df.drop([(len(df)-1)],inplace=True)
+
     reviewData = get_review_data()
     reviewData.to_sql(review_list_table, con=sql_engine, index=False, if_exists='replace')
     conn.close()
