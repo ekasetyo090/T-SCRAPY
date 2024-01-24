@@ -12,7 +12,7 @@ import sqlite3
 import os
 from datetime import datetime
 from sqlalchemy import create_engine
-import re
+
 
 def get_tokopedia_shop_info(shop_url:str)->pd.DataFrame:
     domain = ((urlparse(shop_url)).path).replace('/','')
@@ -664,7 +664,7 @@ def main():
                                                             reviewId TEXT,
                                                             productName TEXT,
                                                             productPageUrl TEXT,
-                                                            productStatus INTEGER,
+                                                            productStatus TEXT,
                                                             isDeletedProduct INTEGER,
                                                             productVariantId TEXT,
                                                             productVariantName TEXT,
@@ -1202,7 +1202,7 @@ def main():
                         df['reviewId'].iloc[-1],
                         df['productName'].iloc[-1],
                         df['productPageUrl'].iloc[-1],
-                        int(df['productStatus'].iloc[-1]),
+                        str(df['productStatus'].iloc[-1]),
                         int(df['isDeletedProduct'].iloc[-1]),
                         df['productVariantId'].iloc[-1],
                         df['productVariantName'].iloc[-1],
@@ -1257,7 +1257,7 @@ def main():
                         df['reviewId'].iloc[-1],
                         df['productName'].iloc[-1],
                         df['productPageUrl'].iloc[-1],
-                        int(df['productStatus'].iloc[-1]),
+                        str(df['productStatus'].iloc[-1]),
                         int(df['isDeletedProduct'].iloc[-1]),
                         df['productVariantId'].iloc[-1],
                         df['productVariantName'].iloc[-1],
