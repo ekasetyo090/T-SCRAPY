@@ -882,7 +882,7 @@ def main():
                                 isGoldShop = ?,isGoldBadgeShop = ?,
                                 isOfficialShop = ?,shopSnippetURL = ?,titleSEO = ?,
                                 descriptionSEO = ?,bottomContentSEO = ?,isQA = ?,
-                                isGoApotik = ? WHERE shopId == ?""".format(shop_info_table)
+                                isGoApotik = ? WHERE shopId == ? AND id == ?""".format(shop_info_table)
 
         params = (df_shop_info["description"].iloc[0],
                   df_shop_info["domain"].iloc[0],
@@ -920,7 +920,8 @@ def main():
                   df_shop_info["bottomContentSEO"].iloc[0],
                   int(df_shop_info["isQA"].iloc[0]),
                   int(df_shop_info["isGoApotik"].iloc[0]), 
-                  shop_id)
+                  shop_id,
+                  int(df_existing['id'].iloc[0]))
 
         cursor.execute(queries, params)
         conn.commit()
@@ -1001,7 +1002,7 @@ def main():
                             rating = ?,averageRating = ?,category = ?,
                             shopDomain = ?,productKey = ?,extParam = ?
                             WHERE shopId = ?
-                            AND productId = ?""".format(active_product_table)
+                            AND productId = ? AND id == ?""".format(active_product_table)
 
             params = (str(df["dateRecorded"].iloc[-1]),
                       df["shopId"].iloc[-1],
@@ -1027,7 +1028,9 @@ def main():
                       df["shopDomain"].iloc[-1],
                       df["productKey"].iloc[-1],
                       df["extParam"].iloc[-1],
-                    shop_id,df['productId'].iloc[-1])
+                      shop_id,
+                      df['productId'].iloc[-1],
+                      int(df_existing['id'].iloc[0]))
             cursor.execute(queries, params)
             conn.commit()
             del query, params
@@ -1127,7 +1130,7 @@ def main():
                 paymentVerified = ?,countView = ?,countReview = ?,
                 countTalk = ?,rating = ?,
                 productVariantsIdentifier = ?,productVariants = ?
-                    WHERE shopId = ? AND productId = ?
+                    WHERE shopId = ? AND productId = ? AND id == ?
             """.format(product_basic_info_table)
 
             params = (dict_basic_info_data["alias"].iloc[0],
@@ -1173,7 +1176,8 @@ def main():
                         dict_basic_info_data["productVariantsIdentifier"].iloc[0],
                         dict_basic_info_data["productVariants"].iloc[0],
                         shop_id,
-                        dict_basic_info_data['productId'].iloc[0])
+                        dict_basic_info_data['productId'].iloc[0],
+                        int(df_existing['id'].iloc[0]))
             cursor.execute(queries, params)
             conn.commit()
             del query, params,dict_basic_info_data
@@ -1186,6 +1190,7 @@ def main():
     while len(df)>=1:
         query = f"SELECT * FROM {review_list_table} WHERE shopId == {shop_id} AND reviewId == {df['reviewId'].iloc[-1]}"
         df_existing = pd.read_sql_query(query, sql_engine)
+        df_existing['id'] = pd.to_numeric(df_existing['id'])
         if len(df_existing)==0:
             print(f"add review data with id {df['reviewId'].iloc[-1]}")
             cursor.execute("BEGIN TRANSACTION")
@@ -1251,7 +1256,7 @@ def main():
                         isAnonymous = ?,
                         totalLike = ?,
                         likeStatus = ?,
-                        badRatingReasonFmt = ? WHERE shopId == ? AND reviewId == ?""".format(review_list_table)
+                        badRatingReasonFmt = ? WHERE shopId == ? AND reviewId == ? AND id == ?""".format(review_list_table)
 
             params = (df['shopId'].iloc[-1],
                         df['reviewId'].iloc[-1],
@@ -1277,7 +1282,11 @@ def main():
                         int(df['totalLike'].iloc[-1]),
                         int(df['likeStatus'].iloc[-1]),
                         df['badRatingReasonFmt'].iloc[-1],
-                        shop_id,df['reviewId'].iloc[-1])
+                        shop_id,df['reviewId'].iloc[-1],
+                        int(df_existing['id'].iloc[0]))
+            cursor.execute(queries, params)
+            conn.commit()
+            
         df.drop([(len(df)-1)],inplace=True)
     
 
