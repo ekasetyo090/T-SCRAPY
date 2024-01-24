@@ -4,7 +4,9 @@
 - skrip ini di desain dengan otomatisasi menngambil data produk dan review. serta membuat, menambah dan meng-update pada database (t-scrapy.db)
 - t-scrapy mengambil input url shop dari tokopedia (lihat gambar dibawah)
 ![shop url](https://github.com/ekasetyo090/T-SCRAPY/blob/71be2fb5e1bbc19fe8972a76015dd49c5c1dd725/screenshot/shop%20url.png)
-- jika input bukan merupakan valid tokopedia shop url maka skrip akan menolak input dan meminta valid url kembali ![invalid url](https://github.com/ekasetyo090/T-SCRAPY/blob/d14a3196287f7be6f755ad8cdf01ee181e4b2d7e/screenshot/shop%20url.png)
+
+- jika input bukan merupakan valid tokopedia shop url maka skrip akan menolak input dan meminta valid url kembali 
+![invalid url](https://github.com/ekasetyo090/T-SCRAPY/blob/0e332bd9745dcad7992fcbb1fe3be41bd70dec8c/screenshot/invalid%20url.png)
 
 ### MOTIVASI
 #### PEMILIHAN METODE
