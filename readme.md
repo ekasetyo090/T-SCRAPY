@@ -6,6 +6,7 @@
 ![shop url](https://github.com/ekasetyo090/T-SCRAPY/blob/71be2fb5e1bbc19fe8972a76015dd49c5c1dd725/screenshot/shop%20url.png)
 
 - jika input bukan merupakan valid tokopedia shop url maka skrip akan menolak input dan meminta valid url kembali 
+
 ![invalid url](https://github.com/ekasetyo090/T-SCRAPY/blob/0e332bd9745dcad7992fcbb1fe3be41bd70dec8c/screenshot/invalid%20url.png)
 
 ### MOTIVASI
