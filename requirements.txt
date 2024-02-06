@@ -1,4 +1,3 @@
 pandas==2.2.0
 Requests==2.31.0
-SQLAlchemy==2.0.21
 SQLAlchemy==2.0.25
